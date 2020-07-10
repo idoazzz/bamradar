@@ -109,8 +109,8 @@ class WifiSignalMonitor:
               monitor=True)
 
 
+
 def setup_argparser():
-    # TODO: Open README FILE
     arguments_parser = ArgumentParser(description=__doc__)
     arguments_parser.add_argument(
         "--interface", "-i", type=str, help="Target WIFI interface.",
@@ -132,7 +132,6 @@ def setup_argparser():
 
 if __name__ == '__main__':
     arguments = setup_argparser()
-    print(arguments)
     enable_monitor_mode(interface=arguments.interface)
     hopper = ChannelsHopper(interface=arguments.interface,
                             hop_interval=3,
@@ -141,8 +140,6 @@ if __name__ == '__main__':
                                 debug=bool(arguments.verbose),
                                 target_macs=arguments.target,
                                 ignored_macs=arguments.ignore)
-
-    # TODO: Add disable hopping and channel option.
     # TODO: DOCS
 
     if bool(arguments.calibrate):
@@ -152,16 +149,14 @@ if __name__ == '__main__':
     if arguments.threshold is not None:
         monitor.set_threshold(arguments.threshold)
 
+    if arguments.channel is not None:
+        hopper.hop_channel(arguments.channel)
 
-    # TODO: More elegant
-    def exit_handler(*args, **kwargs):
-        hopper.stop()
-        exit(1)
+    elif not bool(arguments.disable_hopping):
+        hopper.start()
 
-
-    signal.signal(signal.SIGINT, exit_handler)
-
-    hopper.start()
     monitor.start()
 
-    # TODO: FIX README BY GITHUB
+    if hopper.running:
+        hopper.stop()
+
