@@ -55,11 +55,12 @@ class WifiSignalMonitor:
     @property
     def targeting_macs(self):
         return False if self.target_macs == [] else True
-    @staticmethod
+
     def is_valid_threshold(self, threshold):
-        return threshold < 0 or threshold > -120
+        return 0 > threshold > -120
+
     def set_threshold(self, threshold):
-        if self.is:
+        if not self.is_valid_threshold(threshold):
             raise ValueError("Threshold value is invalid.")
         self.threshold = threshold
 
@@ -119,6 +120,8 @@ if __name__ == '__main__':
     monitor = WifiSignalMonitor(interface=arguments.interface,
                                 debug=bool(arguments.verbose))
 
+    if arguments.threshold is not None:
+        monitor.set_threshold(arguments.threshold)
 
     # TODO: More elegant
     def exit_handler(*args, **kwargs):
