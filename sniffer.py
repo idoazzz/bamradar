@@ -36,6 +36,10 @@ def disable_monitor_mode(interface):
     os.system(f"ifconfig {interface} up")
 
 
+def is_valid_threshold(threshold):
+    return 0 > threshold > -120
+
+
 class WifiSignalMonitor:
     DEFAULT_THRESHOLD = -30  # dbm
     # TODO: CHECK EVERY INPUT FROM USER !!!!! RAISE
@@ -56,11 +60,8 @@ class WifiSignalMonitor:
     def targeting_macs(self):
         return False if self.target_macs == [] else True
 
-    def is_valid_threshold(self, threshold):
-        return 0 > threshold > -120
-
     def set_threshold(self, threshold):
-        if not self.is_valid_threshold(threshold):
+        if not is_valid_threshold(threshold):
             raise ValueError("Threshold value is invalid.")
         self.threshold = threshold
 
@@ -103,9 +104,9 @@ def setup_argparser():
     arguments_parser.add_argument(
         "--threshold", "-t", type=int, help="RSSI threshold.")
     arguments_parser.add_argument(
-        "--ignore", help="Ignore MACs.", action="append")
+        "--ignore", help="Ignore specific MAC.", action="append")
     arguments_parser.add_argument(
-        "--target", help="Target MACs.", action="append")
+        "--target", help="Target specific MAC.", action="append")
     arguments_parser.add_argument('--verbose', '-v', action='count', default=0)
     return arguments_parser.parse_args()
 
