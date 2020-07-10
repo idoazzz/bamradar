@@ -4,7 +4,7 @@ Bamradar is a sniffer that monitors and detects
 wifi devices. The tool generates a specific RSSI threshold, 
 every sniffed packet that has bigger RSSI value 
 will be alerted.
-<br><br>
+<br>
 ##### Prerequisite
 * Kali Linux.
 * Wifi Adapter that supports monitor mode.
