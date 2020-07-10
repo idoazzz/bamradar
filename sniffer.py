@@ -18,12 +18,15 @@ from hopper import ChannelsHopper
 # Change root logging config.
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
+
 def enable_monitor_mode(interface):
     """Enable monitor mode using iwconfig tool.
 
     Args:
         interface (str): Interface name.
     """
+    if not interface_exists(interface):
+        raise ValueError(f"Interface {interface} is invalid.")
     os.system(f"ifconfig {interface} down")
     os.system(f"iwconfig {interface} mode monitor")
     os.system(f"ifconfig {interface} up")
@@ -35,24 +38,30 @@ def disable_monitor_mode(interface):
     Args:
         interface (str): Interface name.
     """
+    if not interface_exists(interface):
+        raise ValueError(f"Interface {interface} is invalid.")
     os.system(f"ifconfig {interface} down")
     os.system(f"iwconfig {interface} mode managed")
     os.system(f"ifconfig {interface} up")
 
 
-def is_valid_threshold(threshold):
+def valid_threshold(threshold):
     return 0 > threshold > -120
+
+
+def interface_exists(interface):
+    return os.path.exists(f"/sys/class/net/{interface}")
 
 
 class WifiSignalMonitor:
     DEFAULT_THRESHOLD = -30  # dbm
+
     # TODO: CHECK EVERY INPUT FROM USER !!!!! RAISE
     # TODO: FIX ARPRARSE AND CHECK SIDE EFFECTS
     def __init__(self, interface, threshold=DEFAULT_THRESHOLD,
                  ignored_macs=None, target_macs=None, debug=False):
-
-        self.interface = interface
-        self.threshold = threshold
+        self.set_interface(interface)
+        self.set_threshold(threshold)
         self.target_macs = target_macs if target_macs is not None else []
         self.ignored_macs = ignored_macs if ignored_macs is not None else []
 
@@ -65,9 +74,14 @@ class WifiSignalMonitor:
         return False if self.target_macs == [] else True
 
     def set_threshold(self, threshold):
-        if not is_valid_threshold(threshold):
-            raise ValueError("Threshold value is invalid.")
+        if not valid_threshold(threshold):
+            raise ValueError(f"Threshold value {threshold} is invalid.")
         self.threshold = threshold
+
+    def set_interface(self, interface):
+        if not interface_exists(interface):
+            raise ValueError(f"Interface {interface} is invalid.")
+        self.interface = interface
 
     def process(self, frame):
         source_address = frame.addr2
@@ -124,7 +138,9 @@ if __name__ == '__main__':
                             hop_interval=3,
                             debug=bool(arguments.verbose))
     monitor = WifiSignalMonitor(interface=arguments.interface,
-                                debug=bool(arguments.verbose))
+                                debug=bool(arguments.verbose),
+                                target_macs=arguments.target,
+                                ignored_macs=arguments.ignore)
 
     # TODO: Add disable hopping and channel option.
     # TODO: DOCS
@@ -135,6 +151,7 @@ if __name__ == '__main__':
 
     if arguments.threshold is not None:
         monitor.set_threshold(arguments.threshold)
+
 
     # TODO: More elegant
     def exit_handler(*args, **kwargs):
