@@ -27,6 +27,7 @@ program without target, be aware that the threshold
 will be calculated by all the signals that transmitted
 around. Get sterile wifi devices environment.<br><br>
 `python sniffer.py --interface wlan0 --calibrate`
+
 The tool takes the maximum RSSI value that have measured and print it.
 Define it as your **threshold**.
 ###### STAGE 2 - Monitor devices.
