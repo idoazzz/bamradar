@@ -104,6 +104,7 @@ class WifiSignalMonitor:
                 self.logger.info(frame_info)
 
     def start(self):
+        self.logger.info("Starting sniffing on %s", self.interface)
         sniff(iface=self.interface, prn=self.process, store=False,
               monitor=True)
 
