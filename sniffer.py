@@ -1,3 +1,10 @@
+""" Detect smartphones in classified rooms.
+
+Bamradar is a sniffer that monitors and detects
+wifi devices. The tool generates a specific RSSI threshold,
+every sniffed packet that has bigger RSSI value
+will be alerted.
+"""
 import os
 import signal
 import logging
@@ -10,9 +17,6 @@ from hopper import ChannelsHopper
 
 # Change root logging config.
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-
-
-# TODO: ARGPARSE, DOCS
 
 def enable_monitor_mode(interface):
     """Enable monitor mode using iwconfig tool.
@@ -93,21 +97,22 @@ class WifiSignalMonitor:
 
 def setup_argparser():
     # TODO: Open README FILE
-    arguments_parser = ArgumentParser(
-        description="Bamradar is a sniffer that monitors and detects "
-              "signal strength (RSSI) of nearby devices. The tool gets "
-              "a specific threshold, every sniffed packet that has "
-              "bigger RSSI value will be alerted.")
+    arguments_parser = ArgumentParser(description=__doc__)
     arguments_parser.add_argument(
         "--interface", "-i", type=str, help="Target WIFI interface.",
         required=True)
     arguments_parser.add_argument(
         "--threshold", "-t", type=int, help="RSSI threshold.")
     arguments_parser.add_argument(
+        "--channel", "-c", type=int, help="Wifi channel.")
+    arguments_parser.add_argument(
         "--ignore", help="Ignore specific MAC.", action="append")
     arguments_parser.add_argument(
         "--target", help="Target specific MAC.", action="append")
     arguments_parser.add_argument('--verbose', '-v', action='count', default=0)
+    arguments_parser.add_argument('--calibrate', action='count', default=0)
+    arguments_parser.add_argument('--disable_hopping', action='count',
+                                  default=0)
     return arguments_parser.parse_args()
 
 
@@ -120,6 +125,13 @@ if __name__ == '__main__':
                             debug=bool(arguments.verbose))
     monitor = WifiSignalMonitor(interface=arguments.interface,
                                 debug=bool(arguments.verbose))
+
+    # TODO: Add disable hopping and channel option.
+    # TODO: DOCS
+
+    if bool(arguments.calibrate):
+        pass
+        # TODO: Calibrate!
 
     if arguments.threshold is not None:
         monitor.set_threshold(arguments.threshold)

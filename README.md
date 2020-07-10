@@ -8,7 +8,7 @@ will be alerted.
 
 #####Prerequisite
 * Kali Linux.
-* Wifi Adapter that support monitor mode.
+* Wifi Adapter that supports monitor mode.
 * Python 3.8.
 <br>
 <br>
@@ -60,3 +60,7 @@ able detect smartphones easily.
 and turn off the screen of the smartphone. When we
 turn on smartphone screen, the smartphone transmit probes 
 (Wifi Frames) => Faster calibration.
+* Bamradar has channel hopper. It can be disabled
+with the flag `--disable_hopping` or pick specific
+channel to sniff - `--channel CHANNEL`.  
+* There is a verbose flag for debug the ignored frames.
