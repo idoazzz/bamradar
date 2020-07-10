@@ -56,7 +56,6 @@ def interface_exists(interface):
 class WifiSignalMonitor:
     DEFAULT_THRESHOLD = -30  # dbm
 
-    # TODO: CHECK EVERY INPUT FROM USER !!!!! RAISE
     # TODO: FIX ARPRARSE AND CHECK SIDE EFFECTS
     def __init__(self, interface, threshold=DEFAULT_THRESHOLD,
                  ignored_macs=None, target_macs=None, debug=False):
@@ -109,7 +108,6 @@ class WifiSignalMonitor:
               monitor=True)
 
 
-
 def setup_argparser():
     arguments_parser = ArgumentParser(description=__doc__)
     arguments_parser.add_argument(
@@ -119,6 +117,9 @@ def setup_argparser():
         "--threshold", "-t", type=int, help="RSSI threshold.")
     arguments_parser.add_argument(
         "--channel", "-c", type=int, help="Wifi channel.")
+    arguments_parser.add_argument(
+        "--hop_interval", type=int, help="Channel hopping interval in "
+                                         "seconds.", default=3)
     arguments_parser.add_argument(
         "--ignore", help="Ignore specific MAC.", action="append")
     arguments_parser.add_argument(
@@ -134,7 +135,7 @@ if __name__ == '__main__':
     arguments = setup_argparser()
     enable_monitor_mode(interface=arguments.interface)
     hopper = ChannelsHopper(interface=arguments.interface,
-                            hop_interval=3,
+                            hop_interval=arguments.hop_interval,
                             debug=bool(arguments.verbose))
     monitor = WifiSignalMonitor(interface=arguments.interface,
                                 debug=bool(arguments.verbose),
@@ -155,8 +156,10 @@ if __name__ == '__main__':
     elif not bool(arguments.disable_hopping):
         hopper.start()
 
+    # Setup stage
     monitor.start()
 
+    # Teardown stage
     if hopper.running:
         hopper.stop()
 
