@@ -28,11 +28,11 @@ If your phone has randomised MAC you can run the
 program without target, be aware that the threshold
 will be calculated by all the signals that transmitted
 around. Get sterile wifi devices environment.<br><br>
-`python sniffer.py --interface wlan0 --calibrate --verbose`
+`python3.8 sniffer.py --interface wlan0 --calibrate --verbose`
 
 It can also possible to calibrate with timeout:
 
-`python sniffer.py --interface wlan0 --calibrate --verbose --timeout 10`
+`python3.8 sniffer.py --interface wlan0 --calibrate --verbose --timeout 10`
 
 The tool takes the maximum RSSI value that have measured and print it.
 Define it as your **threshold**.
