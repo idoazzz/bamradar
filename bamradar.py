@@ -76,7 +76,7 @@ class WifiSignalSniffer(AbstractSniffer):
         ignored_macs (list): Ignoring those macs.
         target_macs (list): Filtering only those macs.
     """
-    DEFAULT_THRESHOLD = -30  # dbm
+    DEFAULT_THRESHOLD = -120  # dbm
 
     def __init__(self, interface, debug=False, timeout=None, target_macs=None,
                  ignored_macs=None, threshold=DEFAULT_THRESHOLD):

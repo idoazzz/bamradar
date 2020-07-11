@@ -76,3 +76,8 @@ turn on smartphone screen, the smartphone transmit probes
 with the flag `--disable_hopping` or pick specific
 channel to sniff - `--channel CHANNEL`.  
 * There is a verbose flag for debug the ignored frames.
+
+##### Extra
+Bamradar can also be a regular wifi sniffer, just run:
+
+`python3.8 bamradar.py --interface INTERFACE`
