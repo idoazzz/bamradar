@@ -45,8 +45,7 @@ NOTE: Don't forget to filter your own wireless interfaces.
 It will spam the bamradar and will show a ghost devices
 with strong signal strength. 
 <br><br>
-`python3.8 sniffer.py --interface wlan0 --threshold -30 --ignore 50:3e:aa:01
-:71:ce`
+`python3.8 sniffer.py --interface wlan0 --threshold -30 --ignore 50:3e:aa:01:71:ce`
 ##### Notes
 * Smartphones with disabled Wifi switch are still
 transmitting wifi (Especially probes).
