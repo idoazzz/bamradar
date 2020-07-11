@@ -1,11 +1,10 @@
-""" Detect smartphones in classified rooms.
+"""Detect smartphones in classified rooms.
 
 Bamradar is a sniffer that monitors and detects
 wifi devices. The tool generates a specific RSSI threshold,
 every sniffed packet that has bigger RSSI value
-will be alerted.
+will be alerted. Quick start and guide: https://github.com/idoazzz/bamradar
 """
-import os
 import logging
 from abc import abstractmethod
 from argparse import ArgumentParser
@@ -16,67 +15,66 @@ from scapy.layers.dot11 import RadioTap
 from hopper import ChannelsHopper
 
 # Change root logging config.
+from utils import enable_monitor_mode, valid_rssi_value, interface_exists, \
+    disable_monitor_mode
+
+# Change logging format.
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
-def enable_monitor_mode(interface):
-    """Enable monitor mode using iwconfig tool.
-
-    Args:
-        interface (str): Interface name.
-    """
-    if not interface_exists(interface):
-        raise ValueError(f"Interface {interface} is invalid.")
-    os.system(f"ifconfig {interface} down")
-    os.system(f"iwconfig {interface} mode monitor")
-    os.system(f"ifconfig {interface} up")
-
-
-def disable_monitor_mode(interface):
-    """Disable monitor mode using iwconfig tool.
-
-    Args:
-        interface (str): Interface name.
-    """
-    if not interface_exists(interface):
-        raise ValueError(f"Interface {interface} is invalid.")
-    os.system(f"ifconfig {interface} down")
-    os.system(f"iwconfig {interface} mode managed")
-    os.system(f"ifconfig {interface} up")
-
-
-def valid_threshold(threshold):
-    return 0 > threshold > -120
-
-
-def interface_exists(interface):
-    return os.path.exists(f"/sys/class/net/{interface}")
-
-
 class AbstractSniffer:
+    """Abstract wifi sniffer.
+
+    Attributes:
+        timeout (int): Sniffer timeout.
+        interface (str): Network interface.
+        debug (bool): Printing in debug mode.
+        logger (Logger): Logger object for logging messages.
+    """
     def __init__(self, interface, debug=False, timeout=None):
-        self.set_interface(interface)
         self.timeout = timeout
+        self.set_interface(interface)
         self.logger = logging.getLogger("wifi_signal_monitor")
         if debug:
             self.logger.setLevel(logging.DEBUG)
 
     def set_interface(self, interface):
+        """Set and validate new network interface.
+
+        Args:
+            interface (str): Network interface.
+
+        Raises:
+            ValueError. Interface is not exist.
+        """
         if not interface_exists(interface):
             raise ValueError(f"Interface {interface} is invalid.")
         self.interface = interface
 
     @abstractmethod
     def process(self, frame):
+        """Processing method.
+
+        Args:
+            frame (RadioTap): Sniffed radio tap frame.
+        """
         pass
 
     def start(self):
+        """Starting the sniffer."""
         self.logger.info("Starting sniffing on %s", self.interface)
         sniff(iface=self.interface, prn=self.process, store=False,
               monitor=True, timeout=self.timeout)
 
 
 class WifiSignalSniffer(AbstractSniffer):
+    """Wifi RSSI (signals strength) sniffer.
+
+    Attributes:
+        threshold (int): Alerting threshold.
+        ignored_macs (list): Ignoring those macs.
+        target_macs (list): Filtering only those macs.
+    """
     DEFAULT_THRESHOLD = -30  # dbm
 
     def __init__(self, interface, debug=False, timeout=None, target_macs=None,
@@ -87,11 +85,25 @@ class WifiSignalSniffer(AbstractSniffer):
         self.ignored_macs = ignored_macs if ignored_macs is not None else []
 
     def set_threshold(self, threshold):
-        if not valid_threshold(threshold):
+        """Set and validate new RSSI threshold.
+
+        Args:
+            threshold (int): RSSI value.
+
+        Raises:
+            ValueError. Illegal rssi value.
+        """
+        if not valid_rssi_value(threshold):
             raise ValueError(f"Threshold value {threshold} is invalid.")
         self.threshold = threshold
 
     def process(self, frame):
+        """Check if the signal strength passed the threshold.
+
+        Check if the frame signal strength is stronger than the threshold.
+        If it is stronger, alert.
+        Also, ignore or check targeting MAC's list.
+        """
         source_address = frame.addr2
         channel = frame[RadioTap].Channel
         signal_strength = frame.dBm_AntSignal
@@ -115,18 +127,30 @@ class WifiSignalSniffer(AbstractSniffer):
             self.logger.info(frame_info)
 
 
-class CalibrationMonitor(AbstractSniffer):
+class ThresholdCalibrationSniffer(AbstractSniffer):
+    """Calibration stage, search for compatible threshold from captured frames.
 
+    Attributes:
+        target_macs (list): Filtering only those macs.
+        captured_rssi_values (list): Captured RSSI values.
+    """
     def __init__(self, interface, debug=False, timeout=None, target_macs=None):
         super().__init__(interface, debug, timeout)
         self.target_macs = target_macs if target_macs is not None else []
-        self.captured_signals = []
+        self.captured_rssi_values = []
 
     @property
     def rssi_threshold(self):
-        return min(self.captured_signals) * 0.7
+        """Generate a threshold based on captured frames.
+
+        The threshold is the lowest RSSI value that captured in the room with
+        a extra factor (be sure that we captured a device in the room and not
+        from another room).
+        """
+        return min(self.captured_rssi_values) * 0.7
 
     def process(self, frame):
+        """Append the signal strength to the captured RSSI values list."""
         source_address = frame.addr2
         signal_strength = frame.dBm_AntSignal
 
@@ -136,13 +160,14 @@ class CalibrationMonitor(AbstractSniffer):
         if not self.target_macs == []:
             if source_address in self.target_macs:
                 self.logger.debug((source_address, signal_strength))
-                self.captured_signals.append(signal_strength)
+                self.captured_rssi_values.append(signal_strength)
         else:
             self.logger.debug((source_address, signal_strength))
-            self.captured_signals.append(signal_strength)
+            self.captured_rssi_values.append(signal_strength)
 
 
-def setup_argparser():
+def setup_arguments_parser():
+    """Setup arguments parser."""
     arguments_parser = ArgumentParser(description=__doc__)
     arguments_parser.add_argument(
         "--interface", "-i", type=str, help="Target WIFI interface.",
@@ -168,40 +193,43 @@ def setup_argparser():
 
 
 if __name__ == '__main__':
-    arguments = setup_argparser()
+    arguments = setup_arguments_parser()
     enable_monitor_mode(interface=arguments.interface)
     hopper = ChannelsHopper(interface=arguments.interface,
                             hop_interval=arguments.hop_interval,
                             debug=bool(arguments.verbose))
+
+    # Hop to specific channel.
     if arguments.channel is not None:
         hopper.hop_channel(arguments.channel)
 
     elif not bool(arguments.disable_hopping):
+        # Start the channel hopper.
         hopper.start()
 
-    # TODO: DOCS
-
     if bool(arguments.calibrate):
-        calibration_monitor = CalibrationMonitor(interface=arguments.interface,
-                                                 debug=bool(arguments.verbose),
-                                                 target_macs=arguments.target,
-                                                 timeout=arguments.timeout)
+        # Start calibration stage.
+        calibration_monitor = \
+            ThresholdCalibrationSniffer(timeout=arguments.timeout,
+                                        target_macs=arguments.target,
+                                        debug=bool(arguments.verbose),
+                                        interface=arguments.interface)
         calibration_monitor.start()
         print(f"Generated threshold: {calibration_monitor.rssi_threshold}")
 
     else:
-        monitor = WifiSignalSniffer(interface=arguments.interface,
-                                    debug=bool(arguments.verbose),
+        # Start monitor stage.
+        monitor = WifiSignalSniffer(timeout=arguments.timeout,
                                     target_macs=arguments.target,
+                                    debug=bool(arguments.verbose),
                                     ignored_macs=arguments.ignore,
-                                    timeout=arguments.timeout)
+                                    interface=arguments.interface)
 
         if arguments.threshold is not None:
             monitor.set_threshold(arguments.threshold)
-
-        # Setup stage
         monitor.start()
 
     # Teardown stage
     if hopper.running:
         hopper.stop()
+    disable_monitor_mode(interface=arguments.interface)
