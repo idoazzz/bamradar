@@ -1,5 +1,5 @@
 # bamradar
-######  Detect wifi devices in classified rooms.
+######  Detect wifi devices in classified areas.
 Bamradar is a sniffer that monitors and detects 
 wifi devices. The tool generates a specific RSSI threshold, 
 every sniffed packet that has bigger RSSI value 
@@ -13,11 +13,17 @@ will be alerted.
 #### So how it will work?
 ###### STAGE 1 - Calibrate the tool.
 Calibrate the tool and search for compatible threshold. 
-You should walk in the specific room, near the walls and the
+You should walk in the specific area, near the walls and the
 far corners in the room, 
 measure the RSSI values that your
 specific phone signals (Sniff and filter on your specific MAC with bamradar).
-<br><br> 
+In expirements we saw that walls (different types) and windows affect the RSSI value and causes a 
+percieved decrease in the signal strength. With this method we can be sure
+that we didn't received frame from another room. Also,
+the threshold has safety factor to ensure that we won't get
+devices from another rooms. If the measured/chosen threshold
+is small enough, the detection will be more accurate.
+<br>
 This command will record the RSSI values of 
 frames of specific smartphone and prints 
 calculated threshold.
@@ -67,10 +73,11 @@ wifi device, it can alert with the logging and also with specific hook that the
 ##### Notes
 * Smartphones with disabled Wifi switch are still
 transmitting wifi (Especially probes).
-* The Bamradar will not find each smartphones in realtime.
+* The Bamradar will not find each device in realtime.
 Sometimes it takes few minute for smartphone to transmit
 frame, or the signals are very weak because of obstacles
-in the room. In experiments that I performed - Bamradar was worked,
+in the room. In experiments that I performed - Bamradar was worked at
+most of the cases,
 With small enough threshold value the bamradar will
 able detect smartphones easily.
 * Recommended (Sometimes works): In the calibration stage you can turn on
