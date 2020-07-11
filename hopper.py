@@ -46,7 +46,7 @@ class ChannelsHopper(Thread):
 
     def hop_channel(self, channel):
         """Hop to given wifi channel using iwconfig tool."""
-        self.logger.info(f"Hopping to channel %s", channel)
+        self.logger.info("Hopping to channel %s", channel)
         os.system(f"iwconfig {self.interface} channel {channel}")
 
     def __iter__(self):
