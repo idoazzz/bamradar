@@ -8,6 +8,7 @@ will be alerted. Quick start and guide: https://github.com/idoazzz/bamradar
 import logging
 from abc import abstractmethod
 from argparse import ArgumentParser
+from subprocess import Popen
 
 from scapy.all import sniff
 from scapy.layers.dot11 import RadioTap
@@ -97,6 +98,14 @@ class WifiSignalSniffer(AbstractSniffer):
             raise ValueError(f"Threshold value {threshold} is invalid.")
         self.threshold = threshold
 
+    def set_hook(self, command):
+        """Set a command that will be executed in alert.
+
+        Args:
+            command (str): Shell command.
+        """
+        self.command_hook = command
+
     def process(self, frame):
         """Check if the signal strength passed the threshold.
 
@@ -122,8 +131,12 @@ class WifiSignalSniffer(AbstractSniffer):
 
         if not self.target_macs == []:
             if source_address in self.target_macs:
+                if self.command_hook is not None:
+                    Popen(self.command_hook, shell=True)
                 self.logger.info(frame_info)
         else:
+            if self.command_hook is not None:
+                Popen(self.command_hook, shell=True)
             self.logger.info(frame_info)
 
 
@@ -134,6 +147,8 @@ class ThresholdCalibrationSniffer(AbstractSniffer):
         target_macs (list): Filtering only those macs.
         captured_rssi_values (list): Captured RSSI values.
     """
+    SAFETY_FACTOR = 0.8
+
     def __init__(self, interface, debug=False, timeout=None, target_macs=None):
         super().__init__(interface, debug, timeout)
         self.target_macs = target_macs if target_macs is not None else []
@@ -147,7 +162,10 @@ class ThresholdCalibrationSniffer(AbstractSniffer):
         a extra factor (be sure that we captured a device in the room and not
         from another room).
         """
-        return min(self.captured_rssi_values) * 0.7
+        if self.captured_rssi_values == []:
+            raise ValueError("There is no captured frames, try to extend the "
+                             "capturing time.")
+        return min(self.captured_rssi_values) * self.SAFETY_FACTOR
 
     def process(self, frame):
         """Append the signal strength to the captured RSSI values list."""
@@ -172,6 +190,8 @@ def setup_arguments_parser():
     arguments_parser.add_argument(
         "--interface", "-i", type=str, help="Target WIFI interface.",
         required=True)
+    arguments_parser.add_argument(
+        "--hook", type=str, help="Alert hook - command to execute.")
     arguments_parser.add_argument(
         "--threshold", "-t", type=int, help="RSSI threshold.")
     arguments_parser.add_argument(
@@ -227,6 +247,8 @@ if __name__ == '__main__':
 
         if arguments.threshold is not None:
             monitor.set_threshold(arguments.threshold)
+        if arguments.hook is not None:
+            monitor.set_hook(arguments.hook)
         monitor.start()
 
     # Teardown stage
