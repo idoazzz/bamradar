@@ -81,6 +81,7 @@ class WifiSignalSniffer(AbstractSniffer):
     def __init__(self, interface, debug=False, timeout=None, target_macs=None,
                  ignored_macs=None, threshold=DEFAULT_THRESHOLD):
         super().__init__(interface, debug, timeout)
+        self.command_hook = None
         self.set_threshold(threshold)
         self.target_macs = target_macs if target_macs is not None else []
         self.ignored_macs = ignored_macs if ignored_macs is not None else []
@@ -193,7 +194,7 @@ def setup_arguments_parser():
     arguments_parser.add_argument(
         "--hook", type=str, help="Alert hook - command to execute.")
     arguments_parser.add_argument(
-        "--threshold", "-t", type=int, help="RSSI threshold.")
+        "--threshold", "-t", type=float, help="RSSI threshold.")
     arguments_parser.add_argument(
         "--channel", "-c", type=int, help="Wifi channel.")
     arguments_parser.add_argument(
