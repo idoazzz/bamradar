@@ -36,6 +36,9 @@ It can also possible to calibrate with timeout:
 
 The tool takes the maximum RSSI value that have measured and print it.
 Define it as your **threshold**.
+
+![](gifs/calibration.gif)
+
 ###### STAGE 2 - Monitor devices.
 Now we need to take our threshold value and pass it to
 the bamradar program. The program will alert when
@@ -58,6 +61,8 @@ wifi device, it can alert with the logging and also with specific hook that the
  
  Also, you can play sound, open external software, actually,
  do enything with the alert hook.
+ 
+ ![](gifs/monitor.gif)
  
 ##### Notes
 * Smartphones with disabled Wifi switch are still
