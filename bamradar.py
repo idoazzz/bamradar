@@ -254,4 +254,5 @@ if __name__ == '__main__':
     # Teardown stage
     if hopper.running:
         hopper.stop()
+        hopper.join()
     disable_monitor_mode(interface=arguments.interface)

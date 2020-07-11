@@ -56,12 +56,12 @@ class ChannelsHopper(Thread):
         """Hopping channels in a cyclic way."""
         self.running = True
         for channel in self:
+            sleep(self.hop_interval)
             if self.running is False:
                 return
-            sleep(self.hop_interval)
             self.hop_channel(channel)
 
     def stop(self):
         """Return to 'auto' channel and stop the thread."""
-        self.hop_channel("auto")
         self.running = False
+        self.hop_channel("auto")
