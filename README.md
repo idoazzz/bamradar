@@ -21,18 +21,18 @@ specific phone signals (Sniff and filter on your specific MAC with bamradar).
 This command will record the RSSI values of 
 frames of specific smartphone and prints 
 calculated threshold.
-`python3.8 sniffer.py --interface wlan0 --calibrate --target 50:3e:aa:01:71
-:ce --verbose`
+`python3.8 sniffer.py --interface INTERFACE --calibrate --target TARGET_MAC
+ --verbose`
 <br><br>
 If your phone has randomised MAC you can run the 
 program without target, be aware that the threshold
 will be calculated by all the signals that transmitted
 around. Get sterile wifi devices environment.<br><br>
-`python sniffer.py --interface wlan0 --calibrate --verbose`
+`python sniffer.py --interface INTERFACE --calibrate --verbose`
 
 It can also possible to calibrate with timeout:
 
-`python sniffer.py --interface wlan0 --calibrate --verbose --timeout 10`
+`python sniffer.py --interface INTERFACE --calibrate --verbose --timeout 10`
 
 The tool takes the maximum RSSI value that have measured and print it.
 Define it as your **threshold**.
@@ -45,8 +45,8 @@ NOTE: Don't forget to filter your own wireless interfaces.
 It will spam the bamradar and will show a ghost devices
 with strong signal strength. 
 <br><br>
-`python3.8 sniffer.py --interface wlan0 --threshold -30 --ignore 50:3e:aa:01
-:71:ce`
+`python3.8 sniffer.py --interface INTERFACE --threshold RSSI_VALUE --ignore
+ IGNORED_MAC`
 ##### Notes
 * Smartphones with disabled Wifi switch are still
 transmitting wifi (Especially probes).
