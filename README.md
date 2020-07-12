@@ -27,6 +27,7 @@ is small enough, the detection will be more accurate.
 This command will record the RSSI values of 
 frames of specific smartphone and prints 
 calculated threshold.
+
 `python3.8 bamradar.py --interface INTERFACE --calibrate --target TARGET_MAC
  --verbose`
 <br><br>
