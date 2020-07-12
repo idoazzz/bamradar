@@ -6,9 +6,9 @@ every sniffed packet that has bigger RSSI value
 will be alerted. Quick start and guide: https://github.com/idoazzz/bamradar
 """
 import logging
+from subprocess import Popen
 from abc import abstractmethod
 from argparse import ArgumentParser
-from subprocess import Popen
 
 from scapy.all import sniff
 from scapy.layers.dot11 import RadioTap
