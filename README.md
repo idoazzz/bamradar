@@ -6,7 +6,7 @@ every sniffed packet that has bigger RSSI value
 will be alerted.
 <br>
 ##### Prerequisite
-* Kali Linux.
+* Linux OS (Recommends Kali).
 * Wifi Adapter that supports monitor mode.
 * Python 3.8.
 <br><br>
