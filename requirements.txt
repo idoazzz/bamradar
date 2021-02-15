@@ -1,8 +1,5 @@
 backcall==0.2.0
 decorator==4.4.2
-flake8==3.8.3
-ipython==7.16.1
-ipython-genutils==0.2.0
 jedi==0.17.1
 mccabe==0.6.1
 parso==0.7.0
