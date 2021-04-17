@@ -95,5 +95,5 @@ Bamradar can also be a regular wifi sniffer, just run:
 
 `python3.8 bamradar.py --interface INTERFACE`
  
-![Uploading sniffer.gif…]()
+![sniffer](https://user-images.githubusercontent.com/49838106/115120915-a5d60e80-9fb8-11eb-90fa-bbb61bf61963.gif)
 
