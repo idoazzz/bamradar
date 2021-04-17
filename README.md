@@ -44,7 +44,7 @@ It can also possible to calibrate with timeout:
 The tool takes the maximum RSSI value that have measured and print it.
 Define it as your **threshold**.
 
-![](gifs/calibration.gif)
+![calibration](https://user-images.githubusercontent.com/49838106/115120883-7921f700-9fb8-11eb-81e6-33b858460b7f.gif)
 
 ###### STAGE 2 - Monitor devices.
 Now we need to take our threshold value and pass it to
@@ -69,7 +69,7 @@ wifi device, it can alert with the logging and also with specific hook that the
  Also, you can play sound, open external software, actually,
  do enything with the alert hook.
  
- ![](gifs/monitor.gif)
+![monitor](https://user-images.githubusercontent.com/49838106/115120888-817a3200-9fb8-11eb-9c74-5f7115613a3f.gif)
  
 ##### Notes
 * Smartphones with disabled Wifi switch are still
@@ -95,5 +95,5 @@ Bamradar can also be a regular wifi sniffer, just run:
 
 `python3.8 bamradar.py --interface INTERFACE`
  
- ![](gifs/sniffer.gif)
+![Uploading sniffer.gif…]()
 
